@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: urantia-server
+    env: node
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node server.js
+    plan: free
+    disk:
+      name: urantia-data
+      mountPath: /opt/render/project/src/server
+      sizeGB: 1
