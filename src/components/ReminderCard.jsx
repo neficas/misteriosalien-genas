@@ -36,6 +36,7 @@ export default function ReminderCard({ reminder, onDelete }) {
       </div>
       <div className="reminder-actions">
         {isPast && <span className="badge-done">✓</span>}
+        {!isPast && reminder.scheduled && <span title="Alarma programada">🔔</span>}
         <button
           className="delete-btn"
           onClick={() => onDelete(reminder.id)}
