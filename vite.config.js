@@ -17,7 +17,8 @@ export default defineConfig({
         background_color: '#EFF6FF',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        start_url: '/misteriosalien-genas/',
+        scope: '/misteriosalien-genas/',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
