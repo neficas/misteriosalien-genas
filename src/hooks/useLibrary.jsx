@@ -28,6 +28,7 @@ export function LibraryProvider({ children }) {
 
     setImportState({ active: true, done: 0, total: files.length, currentName: '' })
     const added = []
+    const batchStart = Date.now()
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
@@ -51,7 +52,7 @@ export function LibraryProvider({ children }) {
           extension: file.name.split('.').pop().toLowerCase(),
           blob: file,
           cover: meta.picture || null,
-          addedAt: Date.now() + i,
+          addedAt: batchStart - i,
         }
         await db.addTrack(track)
         added.push(track)
@@ -61,7 +62,7 @@ export function LibraryProvider({ children }) {
       setImportState((s) => ({ ...s, done: s.done + 1 }))
     }
 
-    setTracks((prev) => [...added.reverse(), ...prev])
+    setTracks((prev) => [...added, ...prev])
     setImportState({ active: false, done: 0, total: 0, currentName: '' })
   }, [])
 
