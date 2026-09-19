@@ -1,109 +1,47 @@
-import { useState, useEffect } from 'react'
-import { useReminders } from './hooks/useReminders'
-import { useAlarm } from './hooks/useAlarm'
-import { usePush } from './hooks/usePush'
-import ReminderCard from './components/ReminderCard'
-import AddReminderModal from './components/AddReminderModal'
-import AlarmModal from './components/AlarmModal'
-import SettingsModal from './components/SettingsModal'
-import './styles/index.css'
+import { useState } from 'react'
+import { LibraryProvider } from './hooks/useLibrary'
+import { PlayerProvider, usePlayer } from './hooks/usePlayer'
+import BottomNav from './components/BottomNav'
+import LibraryView from './components/LibraryView'
+import PlaylistsView from './components/PlaylistsView'
+import SearchView from './components/SearchView'
+import SettingsView from './components/SettingsView'
+import NowPlayingBar from './components/NowPlayingBar'
+import NowPlayingScreen from './components/NowPlayingScreen'
 
-export default function App() {
-  const { reminders, addReminder, deleteReminder, markDone } = useReminders()
-  const { activeAlarm, flashing, dismissAlarm } = useAlarm(reminders, markDone)
-  const { subscription, backendUrl, saveBackendUrl, sendReminderToBackend, deleteReminderFromBackend } = usePush()
-  const [showAdd, setShowAdd] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
-  const [filter, setFilter] = useState('pending')
+const VIEWS = {
+  library: LibraryView,
+  playlists: PlaylistsView,
+  search: SearchView,
+  settings: SettingsView,
+}
 
-  useEffect(() => {
-    if ('Notification' in window && Notification.permission === 'default') {
-      Notification.requestPermission()
-    }
-  }, [])
-
-  function handleAddReminder(reminder) {
-    addReminder(reminder)
-    sendReminderToBackend({ ...reminder, id: Date.now() })
-  }
-
-  function handleDelete(id) {
-    deleteReminder(id)
-    deleteReminderFromBackend(id)
-  }
-
-  const sorted = [...reminders].sort((a, b) => new Date(a.datetime) - new Date(b.datetime))
-  const filtered = sorted.filter(r =>
-    filter === 'all' ? true : filter === 'pending' ? !r.done : r.done
-  )
-
-  const pushActive = !!backendUrl && !!subscription
+function Shell() {
+  const [tab, setTab] = useState('library')
+  const [nowPlayingOpen, setNowPlayingOpen] = useState(false)
+  const { currentTrack } = usePlayer()
+  const ActiveView = VIEWS[tab]
 
   return (
-    <div className="app">
-      <AlarmModal alarm={activeAlarm} flashing={flashing} onDismiss={dismissAlarm} />
-
-      <header className="header">
-        <div className="header-inner">
-          <div className="logo">
-            <span className="logo-u">U</span>
-            <span className="logo-text">rantia</span>
-          </div>
-          <div className="header-right">
-            {pushActive && <span className="push-badge">🔔</span>}
-            <button className="settings-btn" onClick={() => setShowSettings(true)} aria-label="Ajustes">
-              ⚙️
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <div className="filter-bar">
-        {['pending', 'done', 'all'].map(f => (
-          <button
-            key={f}
-            className={`filter-btn ${filter === f ? 'active' : ''}`}
-            onClick={() => setFilter(f)}
-          >
-            {f === 'pending' ? 'Pendientes' : f === 'done' ? 'Completados' : 'Todos'}
-          </button>
-        ))}
-      </div>
-
-      <main className="main">
-        {filtered.length === 0 ? (
-          <div className="empty">
-            <div className="empty-icon">🔔</div>
-            <p>No hay recordatorios</p>
-            <span>Toca + para agregar uno</span>
-          </div>
-        ) : (
-          <div className="reminder-list">
-            {filtered.map(r => (
-              <ReminderCard key={r.id} reminder={r} onDelete={handleDelete} />
-            ))}
-          </div>
-        )}
+    <div className="app-shell">
+      <main className={`app-main ${currentTrack ? 'app-main-with-player' : ''}`}>
+        <ActiveView />
       </main>
 
-      <button className="fab" onClick={() => setShowAdd(true)} aria-label="Agregar recordatorio">
-        +
-      </button>
+      {currentTrack && <NowPlayingBar onOpen={() => setNowPlayingOpen(true)} />}
+      <BottomNav tab={tab} onChange={setTab} />
 
-      {showAdd && (
-        <AddReminderModal
-          onSave={reminder => { addReminder(reminder); sendReminderToBackend(reminder) }}
-          onClose={() => setShowAdd(false)}
-        />
-      )}
-
-      {showSettings && (
-        <SettingsModal
-          currentUrl={backendUrl}
-          onSave={saveBackendUrl}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
+      {nowPlayingOpen && <NowPlayingScreen onClose={() => setNowPlayingOpen(false)} />}
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <LibraryProvider>
+      <PlayerProvider>
+        <Shell />
+      </PlayerProvider>
+    </LibraryProvider>
   )
 }
