@@ -1,3 +1,4 @@
+/* global __APP_VERSION__, __BUILD_TIME__ */
 import { useEffect, useState } from 'react'
 import { useLibrary } from '../hooks/useLibrary'
 import { usePwaInstall } from '../hooks/usePwaInstall'
@@ -71,6 +72,10 @@ export default function SettingsView() {
         <h3>Zona de riesgo</h3>
         <ClearLibraryButton />
       </section>
+
+      <p className="version-tag">
+        Aural · versión {__APP_VERSION__} · compilada {new Date(__BUILD_TIME__).toLocaleString('es')}
+      </p>
     </div>
   )
 }
