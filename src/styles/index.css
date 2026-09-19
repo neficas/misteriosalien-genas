@@ -869,6 +869,14 @@ p {
   border-color: rgba(248, 113, 113, 0.3);
 }
 
+.version-tag {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  opacity: 0.6;
+  margin-top: 8px;
+}
+
 .storage-bar {
   height: 6px;
   border-radius: 999px;
