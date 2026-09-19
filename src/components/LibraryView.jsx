@@ -6,11 +6,13 @@ import TrackMenu from './TrackMenu'
 import ImportButton from './ImportButton'
 import Cover from './Cover'
 import { formatBytes } from '../utils/format'
+import { XIcon } from './Icons'
 
 const SECTIONS = ['Canciones', 'Álbumes', 'Artistas']
 
 export default function LibraryView() {
-  const { tracks, albums, artists, loading, importState, totalSize } = useLibrary()
+  const { tracks, albums, artists, loading, importState, importError, clearImportError, totalSize } =
+    useLibrary()
   const { currentTrack, isPlaying, playQueue } = usePlayer()
   const [section, setSection] = useState('Canciones')
   const [menuTrack, setMenuTrack] = useState(null)
@@ -20,6 +22,24 @@ export default function LibraryView() {
 
   const handlePlayTrack = (list, index) => playQueue(list, index)
 
+  const importBanners = (
+    <>
+      {importState.active && (
+        <div className="import-banner">
+          Importando {importState.done}/{importState.total} — {importState.currentName}
+        </div>
+      )}
+      {importError && (
+        <div className="import-banner import-banner-error">
+          <span>{importError}</span>
+          <button className="icon-button" onClick={clearImportError} aria-label="Cerrar">
+            <XIcon size={16} />
+          </button>
+        </div>
+      )}
+    </>
+  )
+
   if (loading) {
     return <div className="view-loading">Cargando biblioteca…</div>
   }
@@ -27,6 +47,7 @@ export default function LibraryView() {
   if (tracks.length === 0) {
     return (
       <div className="empty-state">
+        {importBanners}
         <Cover blob={null} size={96} />
         <h2>Tu biblioteca está vacía</h2>
         <p>Importa tus canciones (MP3, FLAC, WAV, OGG, M4A) para escucharlas offline en HiFi.</p>
@@ -51,11 +72,7 @@ export default function LibraryView() {
         <ImportButton compact />
       </div>
 
-      {importState.active && (
-        <div className="import-banner">
-          Importando {importState.done}/{importState.total} — {importState.currentName}
-        </div>
-      )}
+      {importBanners}
 
       <div className="segmented">
         {SECTIONS.map((s) => (

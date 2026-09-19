@@ -414,6 +414,16 @@ p {
   margin-bottom: 16px;
 }
 
+.import-banner-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--danger);
+  border-color: rgba(248, 113, 113, 0.3);
+  text-align: left;
+}
+
 .inline-create {
   display: flex;
   align-items: center;

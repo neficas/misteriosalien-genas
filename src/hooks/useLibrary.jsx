@@ -13,6 +13,7 @@ export function LibraryProvider({ children }) {
   const [playlists, setPlaylists] = useState([])
   const [loading, setLoading] = useState(true)
   const [importState, setImportState] = useState({ active: false, done: 0, total: 0, currentName: '' })
+  const [importError, setImportError] = useState('')
 
   useEffect(() => {
     (async () => {
@@ -24,11 +25,19 @@ export function LibraryProvider({ children }) {
   }, [])
 
   const importFiles = useCallback(async (fileList) => {
-    const files = Array.from(fileList).filter((f) => AUDIO_EXTENSIONS.test(f.name) || f.type.startsWith('audio/'))
-    if (files.length === 0) return
+    setImportError('')
+    const allFiles = Array.from(fileList)
+    const files = allFiles.filter((f) => AUDIO_EXTENSIONS.test(f.name) || f.type.startsWith('audio/'))
+    if (files.length === 0) {
+      if (allFiles.length > 0) {
+        setImportError('Ninguno de los archivos seleccionados parece ser de audio.')
+      }
+      return
+    }
 
     setImportState({ active: true, done: 0, total: files.length, currentName: '' })
     const added = []
+    const failed = []
     const batchStart = Date.now()
 
     for (let i = 0; i < files.length; i++) {
@@ -59,12 +68,23 @@ export function LibraryProvider({ children }) {
         added.push(track)
       } catch (err) {
         console.error('No se pudo importar', file.name, err)
+        failed.push(file.name)
       }
       setImportState((s) => ({ ...s, done: s.done + 1 }))
     }
 
     setTracks((prev) => [...added, ...prev])
     setImportState({ active: false, done: 0, total: 0, currentName: '' })
+
+    if (failed.length > 0 && added.length === 0) {
+      setImportError(
+        files.length === 1
+          ? `No se pudo importar "${failed[0]}". Puede que el formato no sea compatible.`
+          : `No se pudo importar ninguno de los ${failed.length} archivos seleccionados.`,
+      )
+    } else if (failed.length > 0) {
+      setImportError(`${failed.length} de ${files.length} archivos no se pudieron importar.`)
+    }
   }, [])
 
   // Files pushed in from Android's native Share sheet (see src/sw.js) —
@@ -182,6 +202,8 @@ export function LibraryProvider({ children }) {
     artists,
     loading,
     importState,
+    importError,
+    clearImportError: () => setImportError(''),
     totalSize,
     importFiles,
     removeTrack,
