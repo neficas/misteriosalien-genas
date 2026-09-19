@@ -221,16 +221,28 @@ export function readAudioDuration(objectUrl) {
     const audio = new Audio()
     audio.preload = 'metadata'
     audio.src = objectUrl
+    let settled = false
+    const timeoutId = setTimeout(() => {
+      if (settled) return
+      settled = true
+      cleanup()
+      resolve(0)
+    }, 8000)
     const cleanup = () => {
+      clearTimeout(timeoutId)
       audio.removeEventListener('loadedmetadata', onLoaded)
       audio.removeEventListener('error', onError)
     }
     const onLoaded = () => {
+      if (settled) return
+      settled = true
       const duration = Number.isFinite(audio.duration) ? audio.duration : 0
       cleanup()
       resolve(duration)
     }
     const onError = () => {
+      if (settled) return
+      settled = true
       cleanup()
       resolve(0)
     }
