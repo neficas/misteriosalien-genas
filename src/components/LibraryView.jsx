@@ -31,6 +31,10 @@ export default function LibraryView() {
         <h2>Tu biblioteca está vacía</h2>
         <p>Importa tus canciones (MP3, FLAC, WAV, OGG, M4A) para escucharlas offline en HiFi.</p>
         <ImportButton label="Importar música" />
+        <p className="empty-hint">
+          ¿No aparece tu gestor de archivos? Abre tu app de Música o Archivos, selecciona las
+          canciones y usa <strong>Compartir → Aural</strong>.
+        </p>
       </div>
     )
   }

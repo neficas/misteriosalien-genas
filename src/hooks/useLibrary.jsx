@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import * as db from '../db/database'
 import { extractMetadata, readAudioDuration } from '../utils/metadata'
 import { uid } from '../utils/format'
+import { consumeSharedFiles } from '../utils/shareTarget'
 
 const LibraryContext = createContext(null)
 
@@ -65,6 +66,16 @@ export function LibraryProvider({ children }) {
     setTracks((prev) => [...added, ...prev])
     setImportState({ active: false, done: 0, total: 0, currentName: '' })
   }, [])
+
+  // Files pushed in from Android's native Share sheet (see src/sw.js) —
+  // the reliable import path on devices with no file-manager app
+  // registered for the in-app file picker.
+  useEffect(() => {
+    (async () => {
+      const files = await consumeSharedFiles()
+      if (files.length > 0) importFiles(files)
+    })()
+  }, [importFiles])
 
   const removeTrack = useCallback(async (id) => {
     await db.deleteTrack(id)

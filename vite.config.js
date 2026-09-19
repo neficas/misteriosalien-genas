@@ -29,6 +29,30 @@ export default defineConfig({
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
           { src: 'icons/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
+        share_target: {
+          action: '/misteriosalien-genas/share-target/',
+          method: 'POST',
+          enctype: 'multipart/form-data',
+          params: {
+            files: [
+              {
+                name: 'audio',
+                accept: [
+                  'audio/*',
+                  '.mp3',
+                  '.flac',
+                  '.wav',
+                  '.ogg',
+                  '.oga',
+                  '.opus',
+                  '.m4a',
+                  '.aac',
+                  '.weba',
+                ],
+              },
+            ],
+          },
+        },
       },
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,png,svg}'],
