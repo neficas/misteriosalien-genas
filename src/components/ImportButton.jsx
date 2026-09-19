@@ -19,7 +19,6 @@ export default function ImportButton({ label = 'Importar música', compact = fal
       <input
         ref={inputRef}
         type="file"
-        accept="audio/*"
         multiple
         hidden
         onChange={(e) => {
