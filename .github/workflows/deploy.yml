@@ -1,8 +1,8 @@
-name: Deploy Urantia to GitHub Pages
+name: Deploy Aural to GitHub Pages
 
 on:
   push:
-    branches: [main, claude/reminder-app-text-voice-8qtkn]
+    branches: [main, claude/music-app-android-hifi-5djlvs]
   workflow_dispatch:
 
 permissions:
